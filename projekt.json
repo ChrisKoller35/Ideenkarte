@@ -1,0 +1,42 @@
+{
+  "schema": "ideenkarte-projekt/1",
+  "id": "ideenkarte",
+  "name": "Ideenkarte",
+  "typ": "tool",
+  "beschreibung": "Desktop-App als visuelle Übersicht aller Projekte.",
+  "status": "aktiv",
+  "stand": "Etappe 1 fertig (Ordnerbaum, Markdown-Anzeige, mehrere Projekte)",
+  "markierung": "mehr-ki",
+  "markierungGeprueft": true,
+  "zuletztGeaendert": "2026-10-14",
+  "ordner": {
+    "haupt": "C:\\Users\\chris\\Documents\\Ideenkarte",
+    "weitere": []
+  },
+  "regeln": [],
+  "repo": null,
+  "technik": [
+    "Electron 33",
+    "React 18",
+    "TypeScript",
+    "Vite 6"
+  ],
+  "start": "npm start",
+  "einstiegsdateien": [
+    "CLAUDE.md",
+    "README.md"
+  ],
+  "struktur": [],
+  "naechsteAufgaben": [
+    {
+      "text": "projekt.json einlesen und anzeigen",
+      "wer": "ki"
+    },
+    {
+      "text": "Als Icon startbar machen (Installer)",
+      "wer": "ki"
+    }
+  ],
+  "aktualisiert": "2026-10-15",
+  "aktualisiertVon": "claude"
+}
