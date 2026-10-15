@@ -32,6 +32,67 @@ export interface FileContent {
   text: string;
 }
 
+/** Markierung aus projekt.json: Wer macht im Projekt den grösseren Teil der Arbeit? */
+export type Markierung = 'mehr-ich' | 'mehr-ki' | 'gemischt';
+export const MARKIERUNGEN: readonly Markierung[] = ['mehr-ich', 'mehr-ki', 'gemischt'];
+
+/** Status aus projekt.json. */
+export type ProjektStatus = 'idee' | 'aktiv' | 'pausiert' | 'fertig' | 'archiviert';
+export const PROJEKT_STATUS: readonly ProjektStatus[] = [
+  'idee',
+  'aktiv',
+  'pausiert',
+  'fertig',
+  'archiviert',
+];
+
+/** Eine nächste Aufgabe aus projekt.json. */
+export interface NaechsteAufgabe {
+  text: string;
+  wer: 'ich' | 'ki';
+}
+
+/**
+ * Die für die Übersicht wichtigen Felder einer projekt.json (Schema ideenkarte-projekt/1).
+ * Unbekannte Felder bleiben in der Datei erhalten, werden hier aber nicht gebraucht.
+ */
+export interface ProjektInfo {
+  id: string;
+  name: string;
+  typ: string;
+  beschreibung: string;
+  status: ProjektStatus | string;
+  stand: string;
+  markierung: Markierung | string;
+  markierungGeprueft: boolean;
+  repo: string | null;
+  naechsteAufgaben: NaechsteAufgabe[];
+  aktualisiert: string | null;
+}
+
+/** Eine Karte in der Übersicht: eine gefundene projekt.json. */
+export interface ProjektKarte {
+  /** Absoluter Pfad zur projekt.json. Dient auch als eindeutiger Schlüssel. */
+  datei: string;
+  /** Ordner, in dem die projekt.json liegt (Projekt-Hauptordner). */
+  ordner: string;
+  /** null, wenn die Datei nicht gelesen werden konnte (siehe fehler). */
+  info: ProjektInfo | null;
+  fehler?: string;
+}
+
+/** Änderungen, die die App in eine projekt.json zurückschreiben darf. */
+export interface KartenAenderung {
+  status?: ProjektStatus;
+  markierung?: Markierung;
+}
+
+/** Einstellungen der App (gespeichert im Benutzerdaten-Ordner). */
+export interface Einstellungen {
+  /** Wurzelordner, unter dem nach projekt.json gesucht wird. Standard: Dokumente. */
+  wurzelordner: string;
+}
+
 /**
  * Die Brücke zwischen Oberfläche und Hauptprozess (siehe electron/preload.ts).
  * Alles, was die Oberfläche vom PC braucht, läuft über diese Schnittstelle.
@@ -44,4 +105,23 @@ export interface IdeenkarteApi {
   renameProject(id: string, name: string): Promise<void>;
   readTree(projectId: string): Promise<TreeNode>;
   readFile(projectId: string, relPath: string): Promise<FileContent>;
+
+  getSettings(): Promise<Einstellungen>;
+  /** Öffnet den Ordner-Dialog für den Wurzelordner. null = abgebrochen. */
+  chooseRootFolder(): Promise<Einstellungen | null>;
+  /** Sucht alle projekt.json unterhalb des Wurzelordners. */
+  listCards(): Promise<ProjektKarte[]>;
+  /** Schreibt Status/Markierung in die projekt.json und liefert die neue Karte. */
+  updateCard(datei: string, aenderung: KartenAenderung): Promise<ProjektKarte>;
+  /** Registriert den Ordner einer Karte als Projekt (für Baum + Anzeige). */
+  openCardProject(datei: string): Promise<Project>;
+  /** Öffnet einen Projektordner im Explorer. */
+  showFolder(ordner: string): Promise<void>;
+
+  /** Version eines fertig geladenen Updates, sonst null. */
+  getReadyUpdate(): Promise<string | null>;
+  /** Beendet die App, installiert das Update und startet neu. */
+  installUpdate(): Promise<void>;
+  /** Meldet, sobald ein Update geladen ist. Liefert eine Abmelde-Funktion. */
+  onUpdateReady(callback: (version: string) => void): () => void;
 }

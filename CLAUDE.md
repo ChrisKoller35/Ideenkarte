@@ -20,6 +20,8 @@ Sprache in Code-Kommentaren und UI: Deutsch (Schweiz, kein ß). Code-Bezeichner:
 - `npm test` – Tests
 - `npm run lint` – Linter
 - `npm run format` – Code formatieren
+- `npm run dist` – Windows-Installer bauen (electron-builder, NSIS, Ausgabe in `release/`)
+- Release: GitHub Actions «Installer bauen» (`.github/workflows/release.yml`), bei Tag `v*` oder von Hand
 
 ## Aufbau
 
@@ -29,10 +31,16 @@ electron/   Hauptprozess (Node). Fenster, IPC, Dateisystem.
   preload.ts    Brücke → window.ideenkarte (einzige Verbindung zur Oberfläche)
   projects.ts   Projektliste (JSON in userData)
   files.ts      Ordnerbaum lesen, Dateien lesen (nie ausserhalb des Projekts)
+  cards.ts      projekt.json suchen, lesen, Status/Markierung zurückschreiben
+  settings.ts   App-Einstellungen (Wurzelordner, Standard: Dokumente)
+  updater.ts    Auto-Update über GitHub-Releases (nur in der installierten App)
 shared/     Typen und reine Hilfsfunktionen, von beiden Seiten genutzt. Keine Node-/DOM-Imports.
+  projektInfo.ts  projekt.json auswerten, Änderungen anwenden, Karten filtern/sortieren
 src/        Oberfläche (React, Browser-Kontext, kein Node-Zugriff).
   api.ts        Zugriff auf window.ideenkarte
-  state/        Hooks: useProjects, useProjectFiles
+  state/        Hooks: useProjects, useProjectFiles, useCards
+  overview/     Übersicht: Projekt-Karten und Filter (Startansicht)
+  update/       Hinweis «Neue Version bereit»
   projects/     Projektleiste
   tree/         Ordnerbaum
   viewer/       Markdown-Anzeige
@@ -55,6 +63,7 @@ src/        Oberfläche (React, Browser-Kontext, kein Node-Zugriff).
 ## Geplante Etappen
 
 1. Baum + Anzeige + mehrere Projekte ✔
-2. Mindmap-Ansicht (React Flow)
-3. «Was ist neu»: Änderungen seit letztem Blick markieren
-4. «Agent hier starten»: Claude Code im gewählten Bereich öffnen
+2. Projekt-Karten aus projekt.json, Filter, Markierung/Status ändern, Installer ✔
+3. Mindmap-Ansicht (React Flow)
+4. «Was ist neu»: Änderungen seit letztem Blick markieren
+5. «Agent hier starten»: Claude Code im gewählten Bereich öffnen

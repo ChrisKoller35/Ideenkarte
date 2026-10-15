@@ -1,0 +1,65 @@
+# Baut den Windows-Installer und legt ihn als GitHub-Release ab. Die installierte App findet
+# neue Releases von selbst (Auto-Update), dafür braucht jedes Release eine höhere Version.
+# Start: unter Actions › "Installer bauen" › "Run workflow" (Version wird automatisch
+# hochgezählt: Haupt.Neben.Laufnummer), oder einen Tag "vX.Y.Z" pushen (Version = Tag).
+name: Installer bauen
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Version festlegen
+        id: version
+        shell: bash
+        run: |
+          if [ "${{ github.ref_type }}" = "tag" ]; then
+            VERSION="${GITHUB_REF_NAME#v}"
+          else
+            BASIS=$(node -p "require('./package.json').version.split('.').slice(0, 2).join('.')")
+            VERSION="$BASIS.${{ github.run_number }}"
+          fi
+          npm version "$VERSION" --no-git-tag-version --allow-same-version
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run dist
+
+      - name: Installer als Download am Lauf anhängen
+        uses: actions/upload-artifact@v4
+        with:
+          name: Ideenkarte-Installer
+          path: |
+            release/*.exe
+            release/*.blockmap
+            release/latest.yml
+
+      # latest.yml und .blockmap braucht die App für das Auto-Update.
+      - name: Release mit Installer erstellen
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: Ideenkarte ${{ steps.version.outputs.version }}
+          target_commitish: ${{ github.sha }}
+          make_latest: true
+          files: |
+            release/*.exe
+            release/*.blockmap
+            release/latest.yml

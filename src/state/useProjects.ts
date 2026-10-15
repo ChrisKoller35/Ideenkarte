@@ -74,7 +74,25 @@ export function useProjects() {
     [reload],
   );
 
+  /** Lädt die Liste neu und öffnet das Projekt (z.B. nachdem eine Karte es registriert hat). */
+  const showProject = useCallback(
+    async (id: string) => {
+      await reload();
+      setActiveId(id);
+    },
+    [reload],
+  );
+
   const active = projects.find((p) => p.id === activeId) ?? null;
 
-  return { projects, active, setActiveId, addProject, removeProject, renameProject, error };
+  return {
+    projects,
+    active,
+    setActiveId,
+    showProject,
+    addProject,
+    removeProject,
+    renameProject,
+    error,
+  };
 }
