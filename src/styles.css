@@ -72,6 +72,15 @@ select {
 }
 
 /* Grundgerüst */
+.shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.shell > .app {
+  flex: 1;
+  min-height: 0;
+}
 .app {
   display: grid;
   grid-template-columns: var(--sidebar-width) 1fr;
@@ -639,4 +648,16 @@ select {
   .tree__caret {
     transition: none;
   }
+}
+
+/* Update-Hinweis */
+.update-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  padding: 0.4rem 1rem;
+  background: var(--accent-soft);
+  border-bottom: 1px solid var(--accent);
+  font-size: 0.9rem;
 }

@@ -12,8 +12,15 @@ links und Text rechts.
    «Weitere Informationen» → «Trotzdem ausführen» (die App ist nicht signiert).
 3. Danach liegt «Ideenkarte» auf dem Desktop und im Startmenü.
 
-Neuen Installer bauen: auf GitHub unter **Actions › Installer bauen › Run workflow** klicken,
-oder einen Tag `v0.2.0` pushen. Nach ein paar Minuten liegt die .exe unter **Releases**.
+## Updates
+
+Die installierte App sucht beim Start auf GitHub nach einer neuen Version und lädt sie im
+Hintergrund. Ist sie bereit, erscheint oben «Neue Version … ist bereit» mit «Neu starten».
+Sonst wird sie beim nächsten Schliessen installiert. Dafür muss das Repo öffentlich sein.
+
+Neue Version veröffentlichen: auf GitHub unter **Actions › Installer bauen › Run workflow**
+klicken. Die Version wird automatisch hochgezählt (z.B. 0.2.7). Für einen grösseren Schritt
+einen Tag wie `v0.3.0` pushen.
 
 ## Bedienung
 

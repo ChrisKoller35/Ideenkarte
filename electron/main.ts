@@ -9,6 +9,7 @@ import { ProjectStore } from './projects';
 import { readFile, readTree } from './files';
 import { assertProjektDatei, listKarten, readKarte, updateKarte } from './cards';
 import { SettingsStore } from './settings';
+import { setupUpdater } from './updater';
 
 const store = new ProjectStore(path.join(app.getPath('userData'), 'projects.json'));
 const settings = new SettingsStore(path.join(app.getPath('userData'), 'settings.json'), {
@@ -110,6 +111,7 @@ function registerCardIpc(): void {
 app.whenReady().then(() => {
   registerIpc();
   createWindow();
+  setupUpdater();
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });

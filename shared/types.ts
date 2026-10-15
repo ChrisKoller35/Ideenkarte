@@ -117,4 +117,11 @@ export interface IdeenkarteApi {
   openCardProject(datei: string): Promise<Project>;
   /** Öffnet einen Projektordner im Explorer. */
   showFolder(ordner: string): Promise<void>;
+
+  /** Version eines fertig geladenen Updates, sonst null. */
+  getReadyUpdate(): Promise<string | null>;
+  /** Beendet die App, installiert das Update und startet neu. */
+  installUpdate(): Promise<void>;
+  /** Meldet, sobald ein Update geladen ist. Liefert eine Abmelde-Funktion. */
+  onUpdateReady(callback: (version: string) => void): () => void;
 }

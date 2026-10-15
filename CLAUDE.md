@@ -33,12 +33,14 @@ electron/   Hauptprozess (Node). Fenster, IPC, Dateisystem.
   files.ts      Ordnerbaum lesen, Dateien lesen (nie ausserhalb des Projekts)
   cards.ts      projekt.json suchen, lesen, Status/Markierung zurückschreiben
   settings.ts   App-Einstellungen (Wurzelordner, Standard: Dokumente)
+  updater.ts    Auto-Update über GitHub-Releases (nur in der installierten App)
 shared/     Typen und reine Hilfsfunktionen, von beiden Seiten genutzt. Keine Node-/DOM-Imports.
   projektInfo.ts  projekt.json auswerten, Änderungen anwenden, Karten filtern/sortieren
 src/        Oberfläche (React, Browser-Kontext, kein Node-Zugriff).
   api.ts        Zugriff auf window.ideenkarte
   state/        Hooks: useProjects, useProjectFiles, useCards
   overview/     Übersicht: Projekt-Karten und Filter (Startansicht)
+  update/       Hinweis «Neue Version bereit»
   projects/     Projektleiste
   tree/         Ordnerbaum
   viewer/       Markdown-Anzeige
