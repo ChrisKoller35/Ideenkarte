@@ -12,6 +12,12 @@ const api: IdeenkarteApi = {
   renameProject: (id, name) => ipcRenderer.invoke('projects:rename', id, name),
   readTree: (projectId) => ipcRenderer.invoke('files:tree', projectId),
   readFile: (projectId, relPath) => ipcRenderer.invoke('files:read', projectId, relPath),
+  getSettings: () => ipcRenderer.invoke('settings:get'),
+  chooseRootFolder: () => ipcRenderer.invoke('settings:chooseRoot'),
+  listCards: () => ipcRenderer.invoke('cards:list'),
+  updateCard: (datei, aenderung) => ipcRenderer.invoke('cards:update', datei, aenderung),
+  openCardProject: (datei) => ipcRenderer.invoke('cards:open', datei),
+  showFolder: (ordner) => ipcRenderer.invoke('shell:showFolder', ordner),
 };
 
 contextBridge.exposeInMainWorld('ideenkarte', api);

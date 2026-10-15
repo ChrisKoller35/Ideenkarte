@@ -1,19 +1,60 @@
+import { useState } from 'react';
+import type { ProjektKarte } from '../shared/types';
+import { getApi } from './api';
 import { useProjects } from './state/useProjects';
 import { useProjectFiles } from './state/useProjectFiles';
+import { useCards } from './state/useCards';
+import { Overview } from './overview/Overview';
 import { ProjectBar } from './projects/ProjectBar';
 import { TreeView } from './tree/TreeView';
 import { FileViewer } from './viewer/FileViewer';
 
-/** Rahmen der App: Seitenleiste (Projekte + Baum) links, Anzeige rechts. */
+type Ansicht = 'uebersicht' | 'projekt';
+
+/** Rahmen der App: Übersicht mit Karten oder Projekt-Bereich (Baum links, Anzeige rechts). */
 export function App() {
+  const [ansicht, setAnsicht] = useState<Ansicht>('uebersicht');
+  const [aktionFehler, setAktionFehler] = useState<string | null>(null);
+  const cards = useCards();
   const projects = useProjects();
   const files = useProjectFiles(projects.active?.id ?? null);
-  const error = projects.error ?? files.error;
+  const error = aktionFehler ?? projects.error ?? files.error;
+
+  async function openCard(karte: ProjektKarte) {
+    try {
+      const project = await getApi().openCardProject(karte.datei);
+      await projects.showProject(project.id);
+      setAktionFehler(null);
+      setAnsicht('projekt');
+    } catch (e) {
+      setAktionFehler(String(e));
+    }
+  }
+
+  async function showFolder(ordner: string) {
+    try {
+      await getApi().showFolder(ordner);
+    } catch (e) {
+      setAktionFehler(String(e));
+    }
+  }
+
+  if (ansicht === 'uebersicht') {
+    return (
+      <div className="app app--overview">
+        {aktionFehler && <div className="error">{aktionFehler}</div>}
+        <Overview cards={cards} onOpen={(k) => void openCard(k)} onShowFolder={showFolder} />
+      </div>
+    );
+  }
 
   return (
     <div className="app">
       <aside className="sidebar">
         <header className="sidebar__header">
+          <button className="btn btn--ghost back" onClick={() => setAnsicht('uebersicht')}>
+            ‹ Übersicht
+          </button>
           <h1 className="brand">Ideenkarte</h1>
         </header>
         <ProjectBar
@@ -34,6 +75,14 @@ export function App() {
           />
         </div>
         <footer className="sidebar__footer">
+          {projects.active && (
+            <button
+              className="btn btn--ghost"
+              onClick={() => projects.active && void showFolder(projects.active.path)}
+            >
+              Im Explorer
+            </button>
+          )}
           <button className="btn btn--ghost" onClick={() => files.reloadTree()}>
             Neu laden
           </button>

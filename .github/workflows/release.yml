@@ -1,0 +1,42 @@
+# Baut den Windows-Installer (Ideenkarte-Setup-x.y.z.exe) und legt ihn als GitHub-Release ab.
+# Start: Tag "v*" pushen, oder unter Actions › "Installer bauen" › "Run workflow".
+name: Installer bauen
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run dist
+
+      - name: Installer als Download am Lauf anhängen
+        uses: actions/upload-artifact@v4
+        with:
+          name: Ideenkarte-Installer
+          path: release/*.exe
+
+      - name: Release mit Installer erstellen
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_type == 'tag' && github.ref_name || format('build-{0}', github.run_number) }}
+          name: ${{ github.ref_type == 'tag' && format('Ideenkarte {0}', github.ref_name) || format('Ideenkarte Build {0}', github.run_number) }}
+          target_commitish: ${{ github.sha }}
+          files: release/*.exe
+          make_latest: true
