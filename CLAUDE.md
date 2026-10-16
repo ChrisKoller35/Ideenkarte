@@ -2,7 +2,7 @@
 
 Desktop-App (Windows) zum Durchstöbern von Projekt- und Ideen-Ordnern: links Ordnerbaum, rechts
 die gewählte Markdown-Datei. Mehrere Projekte, jedes ein eigener Ordner auf dem PC. Später:
-Mindmap-Ansicht, «Was ist neu»-Markierung, «Agent hier starten» (Claude Code im Bereich).
+«Was ist neu»-Markierung, «Agent hier starten» (Claude Code im Bereich).
 
 Sprache in Code-Kommentaren und UI: Deutsch (Schweiz, kein ß). Code-Bezeichner: Englisch.
 
@@ -64,6 +64,8 @@ src/        Oberfläche (React, Browser-Kontext, kein Node-Zugriff).
 
 1. Baum + Anzeige + mehrere Projekte ✔
 2. Projekt-Karten aus projekt.json, Filter, Markierung/Status ändern, Installer ✔
-3. Mindmap-Ansicht (React Flow)
+3. Details ausarbeiten (Wünsche von Christoph, folgen noch)
 4. «Was ist neu»: Änderungen seit letztem Blick markieren
 5. «Agent hier starten»: Claude Code im gewählten Bereich öffnen
+
+Gestrichen (16.10.2026, Christoph): Mindmap-Ansicht. Die Karten-Übersicht ist übersichtlich genug.
