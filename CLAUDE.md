@@ -36,6 +36,7 @@ electron/   Hauptprozess (Node). Fenster, IPC, Dateisystem.
   updater.ts    Auto-Update über GitHub-Releases (nur in der installierten App)
 shared/     Typen und reine Hilfsfunktionen, von beiden Seiten genutzt. Keine Node-/DOM-Imports.
   projektInfo.ts  projekt.json auswerten, Änderungen anwenden, Karten filtern/sortieren
+  markdownFiles.ts  alle MD-Dateien eines Baums sammeln und filtern
 src/        Oberfläche (React, Browser-Kontext, kein Node-Zugriff).
   api.ts        Zugriff auf window.ideenkarte
   state/        Hooks: useProjects, useProjectFiles, useCards
@@ -43,6 +44,7 @@ src/        Oberfläche (React, Browser-Kontext, kein Node-Zugriff).
   update/       Hinweis «Neue Version bereit»
   projects/     Projektleiste
   tree/         Ordnerbaum
+  mdlist/       Liste «MD-Dateien» (Knopf oben in der Seitenleiste)
   viewer/       Markdown-Anzeige
   App.tsx       Rahmen
   styles.css    Design (Tokens in :root, hell/dunkel)

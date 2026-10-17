@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import type { ProjektKarte } from '../shared/types';
 import { getApi } from './api';
 import { useProjects } from './state/useProjects';
@@ -8,6 +8,7 @@ import { Overview } from './overview/Overview';
 import { ProjectBar } from './projects/ProjectBar';
 import { TreeView } from './tree/TreeView';
 import { FileViewer } from './viewer/FileViewer';
+import { MdFileList } from './mdlist/MdFileList';
 import { UpdateBanner } from './update/UpdateBanner';
 
 type Ansicht = 'uebersicht' | 'projekt';
@@ -16,6 +17,8 @@ type Ansicht = 'uebersicht' | 'projekt';
 export function App() {
   const [ansicht, setAnsicht] = useState<Ansicht>('uebersicht');
   const [aktionFehler, setAktionFehler] = useState<string | null>(null);
+  const [mdListeOffen, setMdListeOffen] = useState(false);
+  const closeMdListe = useCallback(() => setMdListeOffen(false), []);
   const cards = useCards();
   const projects = useProjects();
   const files = useProjectFiles(projects.active?.id ?? null);
@@ -59,9 +62,19 @@ export function App() {
       <div className="app">
         <aside className="sidebar">
           <header className="sidebar__header">
-            <button className="btn btn--ghost back" onClick={() => setAnsicht('uebersicht')}>
-              ‹ Übersicht
-            </button>
+            <div className="sidebar__actions">
+              <button className="btn btn--ghost back" onClick={() => setAnsicht('uebersicht')}>
+                ‹ Übersicht
+              </button>
+              <button
+                className={`btn${mdListeOffen ? ' is-active' : ''}`}
+                onClick={() => setMdListeOffen((offen) => !offen)}
+                disabled={!files.tree}
+                title="Alle MD-Dateien des Projekts anzeigen"
+              >
+                MD-Dateien
+              </button>
+            </div>
             <h1 className="brand">Ideenkarte</h1>
           </header>
           <ProjectBar
@@ -78,7 +91,10 @@ export function App() {
               expanded={files.expanded}
               selectedPath={files.selectedPath}
               onToggleDir={files.toggleDir}
-              onSelectFile={files.selectFile}
+              onSelectFile={(relPath) => {
+                setMdListeOffen(false);
+                void files.selectFile(relPath);
+              }}
             />
           </div>
           <footer className="sidebar__footer">
@@ -97,7 +113,19 @@ export function App() {
         </aside>
         <main className="content">
           {error && <div className="error">{error}</div>}
-          <FileViewer file={files.file} projectName={projects.active?.name ?? null} />
+          {mdListeOffen ? (
+            <MdFileList
+              root={files.tree}
+              selectedPath={files.selectedPath}
+              onOpen={(relPath) => {
+                setMdListeOffen(false);
+                void files.selectFile(relPath);
+              }}
+              onClose={closeMdListe}
+            />
+          ) : (
+            <FileViewer file={files.file} projectName={projects.active?.name ?? null} />
+          )}
         </main>
       </div>
     );
