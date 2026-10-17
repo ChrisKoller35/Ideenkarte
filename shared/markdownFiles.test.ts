@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { filterMarkdownFiles, listMarkdownFiles } from './markdownFiles';
+import { filterMarkdownFiles, isRegelDatei, listMarkdownFiles } from './markdownFiles';
 import type { TreeNode } from './types';
 
 const root: TreeNode = {
@@ -47,5 +47,29 @@ describe('filterMarkdownFiles', () => {
   it('sucht im ganzen Pfad, alle Wörter müssen passen', () => {
     expect(filterMarkdownFiles(list, 'welt 10').map((e) => e.name)).toEqual(['Kapitel 10.md']);
     expect(filterMarkdownFiles(list, 'readme').map((e) => e.name)).toEqual(['README.MD']);
+  });
+});
+
+describe('isRegelDatei', () => {
+  it('erkennt Regel-, Feedback- und Verhaltensdateien', () => {
+    for (const name of [
+      'CLAUDE.md',
+      'AGENTS.md',
+      'MANAGER.md',
+      'docs/FEEDBACK.md'.split('/')[1],
+      'Regeln.md',
+      'Regelwerk.md',
+      'RICHTLINIEN.md',
+      'verhalten-ki.md',
+      'SKILL.md',
+      'App-Feedback-2026.md',
+    ]) {
+      expect(isRegelDatei(name), name).toBe(true);
+    }
+  });
+  it('lässt andere Dateien weg', () => {
+    for (const name of ['README.md', 'Kapitel 2.md', 'spellmanager.md', 'GRAFIK.md', 'PLAN.md']) {
+      expect(isRegelDatei(name), name).toBe(false);
+    }
   });
 });

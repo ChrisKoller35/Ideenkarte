@@ -38,6 +38,18 @@ export function listMarkdownFiles(root: TreeNode): MarkdownEintrag[] {
   return result.sort((a, b) => collator.compare(a.relPath, b.relPath));
 }
 
+/**
+ * Dateien mit Regeln, Richtlinien, Feedback oder Verhalten (für Menschen und KI), z. B.
+ * CLAUDE.md, AGENTS.md, MANAGER.md, FEEDBACK.md, REGELN.md, SKILL.md. Das Stichwort muss
+ * am Anfang eines Namensteils stehen, damit «spellmanager.md» nicht als MANAGER.md zählt.
+ */
+const REGEL_STICHWORT =
+  /(^|[^a-zäöü])(claude|agents?|manager|skill|feedback|regel|richtlinie|verhalten|guideline|contributing|konvention)/;
+
+export function isRegelDatei(name: string): boolean {
+  return REGEL_STICHWORT.test(name.toLowerCase());
+}
+
 /** Filtert nach Suchtext im Pfad (ohne Gross-/Kleinschreibung). Mehrere Wörter = alle müssen passen. */
 export function filterMarkdownFiles(list: MarkdownEintrag[], query: string): MarkdownEintrag[] {
   const words = query.toLowerCase().split(/\s+/).filter(Boolean);
