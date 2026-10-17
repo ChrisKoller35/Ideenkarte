@@ -661,3 +661,81 @@ select {
   border-bottom: 1px solid var(--accent);
   font-size: 0.9rem;
 }
+
+/* Liste «MD-Dateien» */
+.sidebar__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+}
+.btn.is-active {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.mdlist {
+  max-width: 50rem;
+  margin: 0 auto;
+  padding: 1.6rem 2rem 4rem;
+}
+.mdlist__head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+}
+.mdlist__title {
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: 1.4rem;
+  margin: 0;
+  color: var(--accent);
+}
+.mdlist__count {
+  flex: 1;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+.mdlist__search {
+  width: 100%;
+  margin: 0.8rem 0;
+  padding: 0.4rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+}
+.mdlist__search:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.mdlist__items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.mdlist__item {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  text-align: left;
+  padding: 0.45rem 0.7rem;
+  border: none;
+  border-bottom: 1px solid var(--line);
+  background: none;
+  cursor: pointer;
+}
+.mdlist__item:hover,
+.mdlist__item:focus-visible,
+.mdlist__item.is-selected {
+  background: var(--accent-soft);
+  outline: none;
+}
+.mdlist__name {
+  font-weight: 600;
+}
+.mdlist__path {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
