@@ -9,6 +9,7 @@ import { ProjectBar } from './projects/ProjectBar';
 import { TreeView } from './tree/TreeView';
 import { FileViewer } from './viewer/FileViewer';
 import { MdFileList } from './mdlist/MdFileList';
+import { ReloadButton } from './projects/ReloadButton';
 import { UpdateBanner } from './update/UpdateBanner';
 
 type Ansicht = 'uebersicht' | 'projekt';
@@ -106,9 +107,7 @@ export function App() {
                 Im Explorer
               </button>
             )}
-            <button className="btn btn--ghost" onClick={() => files.reloadTree()}>
-              Neu laden
-            </button>
+            <ReloadButton onReload={files.reload} />
           </footer>
         </aside>
         <main className="content">

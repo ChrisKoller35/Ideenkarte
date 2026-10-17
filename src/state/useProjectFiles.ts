@@ -59,5 +59,18 @@ export function useProjectFiles(projectId: string | null) {
     [projectId],
   );
 
-  return { tree, expanded, toggleDir, selectedPath, selectFile, file, error, reloadTree };
+  /** «Neu laden»: Baum und die geöffnete Datei frisch von der Festplatte lesen. */
+  const reload = useCallback(async () => {
+    await reloadTree();
+    if (!projectId || !selectedPath) return;
+    try {
+      setFile(await getApi().readFile(projectId, selectedPath));
+    } catch {
+      // Datei gibt es nicht mehr (gelöscht oder umbenannt): Anzeige leeren.
+      setSelectedPath(null);
+      setFile(null);
+    }
+  }, [projectId, reloadTree, selectedPath]);
+
+  return { tree, expanded, toggleDir, selectedPath, selectFile, file, error, reload };
 }
