@@ -6,6 +6,7 @@ import {
   parseProjektInfo,
   sortKarten,
   STANDARD_FILTER,
+  validateAenderung,
 } from './projektInfo';
 import type { KartenAenderung, ProjektKarte } from './types';
 
@@ -66,6 +67,24 @@ describe('applyAenderung', () => {
     const bad = { status: 'kaputt' } as unknown as KartenAenderung;
     expect(() => applyAenderung({}, bad, '2026-10-15')).toThrow();
   });
+  it('lässt bei reiner Status-Änderung die Prüfung offen und das Original unverändert', () => {
+    const data = { status: 'aktiv', markierungGeprueft: false };
+    const next = applyAenderung(data, { status: 'fertig' }, '2026-10-26');
+    expect(next.status).toBe('fertig');
+    expect(next.markierungGeprueft).toBe(false);
+    expect(data.status).toBe('aktiv');
+  });
+});
+
+describe('validateAenderung', () => {
+  it('lässt nur Status und Markierung durch, nie andere Felder', () => {
+    const roh = { status: 'aktiv', name: 'Neu', repo: 'x' } as unknown as KartenAenderung;
+    expect(validateAenderung(roh)).toEqual({ status: 'aktiv' });
+  });
+  it('lehnt eine unbekannte Markierung ab', () => {
+    const bad = { markierung: 'nur-ki' } as unknown as KartenAenderung;
+    expect(() => validateAenderung(bad)).toThrow(/Markierung/);
+  });
 });
 
 describe('filterKarten', () => {
@@ -96,6 +115,21 @@ describe('sortKarten', () => {
   it('stellt aktive Projekte nach vorne', () => {
     const sorted = sortKarten([karte('Z', 'pausiert', 'x'), karte('B', 'aktiv', 'x')]);
     expect(sorted.map((k) => k.info?.name)).toEqual(['B', 'Z']);
+  });
+  it('sortiert Namen natürlich, unbekannter Status und kaputte Karten kommen ans Ende', () => {
+    const kaputt: ProjektKarte = { datei: '/k/projekt.json', ordner: '/k', info: null };
+    const sorted = sortKarten([
+      kaputt,
+      karte('Projekt 10', 'aktiv', 'x'),
+      karte('Neu', 'unbekannt', 'x'),
+      karte('Projekt 2', 'aktiv', 'x'),
+    ]);
+    expect(sorted.map((k) => k.info?.name ?? 'kaputt')).toEqual([
+      'Projekt 2',
+      'Projekt 10',
+      'Neu',
+      'kaputt',
+    ]);
   });
 });
 

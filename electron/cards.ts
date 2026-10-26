@@ -74,10 +74,12 @@ export async function listKarten(root: string): Promise<ProjektKarte[]> {
 export function assertProjektDatei(root: string, datei: string): string {
   const abs = path.resolve(datei);
   const rootAbs = path.resolve(root);
+  // Ein ganzes Laufwerk (z. B. D:\) endet schon mit dem Trenner.
+  const prefix = rootAbs.endsWith(path.sep) ? rootAbs : rootAbs + path.sep;
   if (path.basename(abs).toLowerCase() !== PROJEKT_DATEI) {
     throw new Error('Nur projekt.json-Dateien dürfen geändert werden');
   }
-  if (!abs.startsWith(rootAbs + path.sep)) {
+  if (!abs.startsWith(prefix)) {
     throw new Error('Die Datei liegt ausserhalb des Wurzelordners');
   }
   return abs;

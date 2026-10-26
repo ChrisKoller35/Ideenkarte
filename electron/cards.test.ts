@@ -70,4 +70,9 @@ describe('updateKarte', () => {
     expect(() => assertProjektDatei(tmp, path.join(tmp, '..', 'projekt.json'))).toThrow();
     expect(() => assertProjektDatei(tmp, path.join(tmp, 'Story', 'package.json'))).toThrow();
   });
+  it('erlaubt einen Wurzelordner, der ein ganzes Laufwerk ist (z. B. D:\\)', () => {
+    const laufwerk = path.parse(tmp).root;
+    const datei = path.join(laufwerk, 'Ideen', 'projekt.json');
+    expect(assertProjektDatei(laufwerk, datei)).toBe(datei);
+  });
 });

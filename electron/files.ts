@@ -42,7 +42,9 @@ async function readChildren(absDir: string, relDir: string): Promise<TreeNode[]>
 export function resolveInside(rootPath: string, relPath: string): string {
   const root = path.resolve(rootPath);
   const target = path.resolve(root, ...relPath.split('/'));
-  if (target !== root && !target.startsWith(root + path.sep)) {
+  // Ein ganzes Laufwerk (z. B. D:\) endet schon mit dem Trenner.
+  const prefix = root.endsWith(path.sep) ? root : root + path.sep;
+  if (target !== root && !target.startsWith(prefix)) {
     throw new Error(`Pfad liegt ausserhalb des Projekts: ${relPath}`);
   }
   return target;
