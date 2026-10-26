@@ -1,6 +1,29 @@
 import { describe, expect, it } from 'vitest';
-import { ancestorDirs, findNode, sortNodes } from './tree';
+import { ancestorDirs, findNode, isIgnoredName, sortNodes } from './tree';
 import type { TreeNode } from './types';
+
+describe('isIgnoredName', () => {
+  it('blendet Werkzeug- und Systemordner aus', () => {
+    for (const name of [
+      '.git',
+      'node_modules',
+      '.obsidian',
+      '.vscode',
+      '.idea',
+      'dist',
+      'dist-electron',
+      '.DS_Store',
+      'Thumbs.db',
+    ]) {
+      expect(isIgnoredName(name), name).toBe(true);
+    }
+  });
+  it('lässt ähnliche, normale Namen stehen', () => {
+    for (const name of ['.gitignore', 'Git', 'distanz.md', 'node_modules.md', 'README.md']) {
+      expect(isIgnoredName(name), name).toBe(false);
+    }
+  });
+});
 
 describe('sortNodes', () => {
   it('stellt Ordner vor Dateien und sortiert natürlich', () => {
@@ -16,6 +39,14 @@ describe('sortNodes', () => {
       'a.md',
       'b.md',
     ]);
+  });
+  it('sortiert ohne Rücksicht auf Gross-/Kleinschreibung, Umlaute wie ihr Grundbuchstabe', () => {
+    const nodes: TreeNode[] = [
+      { name: 'Zebra.md', relPath: 'Zebra.md', kind: 'file' },
+      { name: 'birne.md', relPath: 'birne.md', kind: 'file' },
+      { name: 'Äpfel.md', relPath: 'Äpfel.md', kind: 'file' },
+    ];
+    expect(sortNodes(nodes).map((n) => n.name)).toEqual(['Äpfel.md', 'birne.md', 'Zebra.md']);
   });
 });
 

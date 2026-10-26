@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { filterMarkdownFiles, isRegelDatei, listMarkdownFiles } from './markdownFiles';
+import {
+  filterMarkdownFiles,
+  isMarkdownName,
+  isRegelDatei,
+  listMarkdownFiles,
+} from './markdownFiles';
 import type { TreeNode } from './types';
 
 const root: TreeNode = {
@@ -47,6 +52,19 @@ describe('filterMarkdownFiles', () => {
   it('sucht im ganzen Pfad, alle Wörter müssen passen', () => {
     expect(filterMarkdownFiles(list, 'welt 10').map((e) => e.name)).toEqual(['Kapitel 10.md']);
     expect(filterMarkdownFiles(list, 'readme').map((e) => e.name)).toEqual(['README.MD']);
+  });
+  it('ignoriert Gross-/Kleinschreibung und doppelte Leerzeichen in der Suche', () => {
+    expect(filterMarkdownFiles(list, '  WELT   kapitel ')).toHaveLength(2);
+    expect(filterMarkdownFiles(list, 'gibtsnicht')).toEqual([]);
+  });
+});
+
+describe('isMarkdownName', () => {
+  it('erkennt .md und .markdown in jeder Schreibweise, sonst nichts', () => {
+    expect(isMarkdownName('NOTIZ.MD')).toBe(true);
+    expect(isMarkdownName('x.Markdown')).toBe(true);
+    expect(isMarkdownName('bild.md.png')).toBe(false);
+    expect(isMarkdownName('seite.mdx')).toBe(false);
   });
 });
 
