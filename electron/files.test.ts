@@ -33,6 +33,10 @@ beforeAll(async () => {
   // Verknüpfung im Projekt nach draussen ('junction' klappt unter Windows ohne Adminrechte).
   const link = path.join(tmp, 'Story', 'Link');
   await fs.symlink(path.join(huelle, 'Projekt-geheim'), link, 'junction');
+  // Erlaubt: eine Verknüpfung, die im Projekt bleibt, und eine auf den Projektordner selbst.
+  const intern = path.join(tmp, 'Story', 'Intern');
+  await fs.symlink(path.join(tmp, 'Story', 'Erzaehler'), intern, 'junction');
+  await fs.symlink(tmp, path.join(huelle, 'ProjektLink'), 'junction');
 });
 
 afterAll(async () => {
@@ -83,6 +87,17 @@ describe('readFile', () => {
     const file = await readFile(tmp, 'Story/gross.md');
     expect(file.kind).toBe('text');
     expect(file.text).toMatch(/zu gross/);
+  });
+  it('liest nicht über eine Verknüpfung nach draussen, auch bei direktem Aufruf', async () => {
+    await expect(readFile(tmp, 'Story/Link/notiz.md')).rejects.toThrow(/Verknüpfung zeigt/);
+  });
+  it('liest über eine Verknüpfung, die im Projekt bleibt', async () => {
+    const file = await readFile(tmp, 'Story/Intern/01.md');
+    expect(file.text).toBe('# Kapitel 1');
+  });
+  it('liest, wenn der Projektordner selbst eine Verknüpfung ist', async () => {
+    const file = await readFile(path.join(huelle, 'ProjektLink'), 'README.md');
+    expect(file.text).toBe('# Hallo');
   });
   it('liest keine Datei ausserhalb des Projekts, auch wenn es sie gibt', async () => {
     await expect(readFile(tmp, '../geheim.md')).rejects.toThrow(/ausserhalb des Projekts/);
