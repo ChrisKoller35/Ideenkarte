@@ -22,6 +22,8 @@ Sprache in Code-Kommentaren und UI: Deutsch (Schweiz, kein ß). Code-Bezeichner:
 - `npm run format` – Code formatieren
 - `npm run dist` – Windows-Installer bauen (electron-builder, NSIS, Ausgabe in `release/`)
 - Release: GitHub Actions «Installer bauen» (`.github/workflows/release.yml`), bei Tag `v*` oder von Hand
+- Prüfung: GitHub Actions «Prüfen» (`.github/workflows/pruefen.yml`) bei jedem PR und auf main:
+  typecheck, lint, test unter Windows. Vor dem Merge grün abwarten.
 
 ## Aufbau
 

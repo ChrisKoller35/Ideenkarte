@@ -1,0 +1,39 @@
+# Prüft jeden PR und jeden neuen Stand auf main: Typen, Linter und Tests unter Windows,
+# wo die App läuft und wo auch der Installer gebaut wird. Baut keinen Installer und erstellt
+# kein Release (dafür gibt es "Installer bauen" in release.yml).
+name: Prüfen
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+# Ein neuer Push auf denselben Branch bricht den älteren Lauf ab.
+concurrency:
+  group: pruefen-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  windows:
+    name: Typen, Linter, Tests (Windows)
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # Das Electron-Programm selbst braucht es für die Prüfung nicht.
+      - run: npm ci
+        env:
+          ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
+
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test
