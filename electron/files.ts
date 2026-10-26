@@ -2,14 +2,20 @@
  * Lesen des Projektordners: Baum aufbauen und einzelne Dateien laden.
  * Alle Pfade werden gegen den Projektordner geprüft, damit nie etwas ausserhalb gelesen wird.
  */
-import { promises as fs } from 'node:fs';
+import { promises as fs, realpath } from 'node:fs';
 import path from 'node:path';
+import { promisify } from 'node:util';
 import type { FileContent, TreeNode } from '../shared/types';
 import { isIgnoredName, sortNodes } from '../shared/tree';
 
 const MARKDOWN_EXT = new Set(['.md', '.markdown']);
 const TEXT_EXT = new Set(['.txt', '.json', '.yaml', '.yml', '.csv', '.toml', '.ini', '.cfg']);
 const MAX_TEXT_BYTES = 2 * 1024 * 1024;
+/**
+ * Echter Pfad mit aufgelösten Verknüpfungen (Links, Junctions). Bewusst die JS-Variante:
+ * fs.promises.realpath ist die native, und die scheitert unter Windows an manchen Laufwerken.
+ */
+const echterPfad = promisify(realpath);
 
 /** Liest den ganzen Ordnerbaum (ohne ignorierte Ordner wie .git). */
 export async function readTree(rootPath: string): Promise<TreeNode> {
@@ -42,12 +48,25 @@ async function readChildren(absDir: string, relDir: string): Promise<TreeNode[]>
 export function resolveInside(rootPath: string, relPath: string): string {
   const root = path.resolve(rootPath);
   const target = path.resolve(root, ...relPath.split('/'));
-  // Ein ganzes Laufwerk (z. B. D:\) endet schon mit dem Trenner.
-  const prefix = root.endsWith(path.sep) ? root : root + path.sep;
-  if (target !== root && !target.startsWith(prefix)) {
+  if (!isInside(root, target)) {
     throw new Error(`Pfad liegt ausserhalb des Projekts: ${relPath}`);
   }
   return target;
+}
+
+/** Liegt target im Ordner root oder ist es root selbst? Beide Pfade absolut. */
+function isInside(root: string, target: string): boolean {
+  // Ein ganzes Laufwerk (z. B. D:\) endet schon mit dem Trenner.
+  const prefix = root.endsWith(path.sep) ? root : root + path.sep;
+  return target === root || target.startsWith(prefix);
+}
+
+/** Auch über eine Verknüpfung im Pfad darf nichts ausserhalb des Projekts gelesen werden. */
+async function assertRealInside(rootPath: string, abs: string, relPath: string): Promise<void> {
+  const [realRoot, real] = await Promise.all([echterPfad(rootPath), echterPfad(abs)]);
+  if (!isInside(realRoot, real)) {
+    throw new Error(`Verknüpfung zeigt ausserhalb des Projekts: ${relPath}`);
+  }
 }
 
 export function classifyFile(name: string): FileContent['kind'] {
@@ -61,6 +80,7 @@ export async function readFile(rootPath: string, relPath: string): Promise<FileC
   const abs = resolveInside(rootPath, relPath);
   const kind = classifyFile(abs);
   if (kind === 'binary') return { relPath, kind, text: '' };
+  await assertRealInside(rootPath, abs, relPath);
   const stat = await fs.stat(abs);
   if (stat.size > MAX_TEXT_BYTES) {
     return { relPath, kind: 'text', text: `(Datei zu gross zum Anzeigen: ${stat.size} Bytes)` };
